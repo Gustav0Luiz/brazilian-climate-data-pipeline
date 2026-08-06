@@ -101,7 +101,7 @@ Os comandos abaixo devem ser executados em Linux, macOS, WSL ou Git Bash.
 ### 1. Clonar o repositório
 
 ```bash
-git clone <URL_DO_REPOSITORIO>
+git clone https://github.com/Gustav0Luiz/brazilian-climate-data-pipeline.git
 cd climate-project
 ```
 

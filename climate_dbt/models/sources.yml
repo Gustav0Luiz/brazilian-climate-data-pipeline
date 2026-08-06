@@ -1,0 +1,13 @@
+sources:
+  - name: raw
+    description: Dados brutos coletados das APIs da Open-Meteo.
+
+    database: climate_db
+    schema: public
+
+    tables:
+      - name: raw_temperature
+        description: Dados horarios de temperatura das capitais brasileiras.
+
+      - name: raw_air_quality
+        description: Dados horarios de qualidade do ar das capitais brasileiras.

@@ -1,0 +1,45 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Airflow generated files
+logs/
+config/airflow.cfg
+airflow.db
+airflow-webserver.pid
+standalone_admin_password.txt
+*.log
+
+# dbt generated files
+climate_dbt/target/
+climate_dbt/logs/
+climate_dbt/dbt_packages/
+
+# Python tools
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Docker Compose temporary files
+compose-resolved.yml
+
+# IDE and operating system
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+climate_dbt/.user.yml

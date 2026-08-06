@@ -1,0 +1,54 @@
+version: 2
+
+models:
+  - name: climate_hourly
+    description: Dados horarios de temperatura e qualidade do ar.
+
+    columns:
+      - name: city
+        data_tests:
+          - not_null
+
+      - name: measured_at_local
+        data_tests:
+          - not_null
+
+      - name: measurement_date
+        data_tests:
+          - not_null
+
+      - name: measurement_hour
+        data_tests:
+          - not_null
+
+      - name: temperature_c
+        data_tests:
+          - not_null
+
+  - name: climate_daily
+    description: Dados climaticos agregados por cidade e dia.
+
+    columns:
+      - name: city
+        data_tests:
+          - not_null
+
+      - name: measurement_date
+        data_tests:
+          - not_null
+
+      - name: hourly_records
+        data_tests:
+          - not_null
+
+  - name: climate_monthly
+    description: Dados climaticos agregados por cidade e mes.
+
+    columns:
+      - name: city
+        data_tests:
+          - not_null
+
+      - name: measurement_month
+        data_tests:
+          - not_null

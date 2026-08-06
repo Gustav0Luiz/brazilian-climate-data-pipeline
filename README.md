@@ -4,16 +4,30 @@ Pipeline de dados para coleta, armazenamento, transformação, validação e vis
 
 O projeto coleta dados horários de temperatura e qualidade do ar por meio das APIs da Open-Meteo, armazena os dados no PostgreSQL, executa transformações com dbt, agenda todo o processo com Apache Airflow e disponibiliza um dashboard interativo em Streamlit.
 
+## Demonstração do dashboard
+
+O projeto inclui um dashboard interativo desenvolvido em Streamlit para exploração dos dados climáticos e de qualidade do ar das 27 capitais brasileiras.
+
+A interface permite selecionar uma capital e um período, visualizar indicadores de temperatura e qualidade do ar, acompanhar a evolução dos dados em gráficos e exportar os resultados em CSV.
+
+<img
+  width="1868"
+  height="862"
+  alt="Dashboard do Brazilian Climate Data Pipeline"
+  src="https://github.com/user-attachments/assets/87044532-cde8-4820-a029-607828f869d4"
+/>
+
+
 ## Arquitetura
 
 ```text
-Open-Meteo APIs
+Apache Airflow
         ↓
 Python
         ↓
-PostgreSQL — dados brutos
+Open-Meteo APIs
         ↓
-Apache Airflow
+PostgreSQL — dados brutos
         ↓
 dbt — transformação e testes
         ↓
@@ -76,11 +90,7 @@ O dbt também executa testes para verificar:
 - valores negativos inválidos;
 - alinhamento entre temperatura e qualidade do ar.
 
-O dicionário completo das tabelas e colunas está disponível em:
-
-```text
-dicionario.md
-```
+O dicionário completo das tabelas e colunas está disponível em [dicionario.md](dicionario.md).
 
 ## Pré-requisitos
 
@@ -94,6 +104,12 @@ No Windows, recomenda-se utilizar Docker Desktop com WSL 2.
 
 Não é necessário instalar localmente PostgreSQL, Airflow, dbt, Streamlit ou as bibliotecas Python do projeto.
 
+Para executar todos os componentes do Airflow, recomenda-se disponibilizar ao Docker:
+
+- pelo menos 4 GB de memória;
+- pelo menos 2 CPUs;
+- aproximadamente 10 GB de espaço livre.
+
 ## Como executar
 
 Os comandos abaixo devem ser executados em Linux, macOS, WSL ou Git Bash.
@@ -102,7 +118,7 @@ Os comandos abaixo devem ser executados em Linux, macOS, WSL ou Git Bash.
 
 ```bash
 git clone https://github.com/Gustav0Luiz/brazilian-climate-data-pipeline.git
-cd climate-project
+cd brazilian-climate-data-pipeline
 ```
 
 ### 2. Criar o arquivo de variáveis de ambiente
@@ -208,9 +224,16 @@ Esse único comando:
 3. cria o usuário administrador do Airflow;
 4. inicia Redis e os componentes do Airflow;
 5. inicia o dashboard Streamlit;
-6. ativa a DAG de ingestão;
-7. coleta os períodos ausentes;
-8. executa os modelos e testes do dbt.
+6. deixa a DAG de ingestão ativa no Airflow;
+7. o scheduler executa a ingestão conforme o agendamento;
+8. após a ingestão, o dbt cria os modelos analíticos e executa os testes.
+
+Para iniciar o pipeline imediatamente, sem aguardar o próximo horário agendado, execute:
+
+```bash
+docker compose exec airflow-scheduler \
+  airflow dags trigger climate_ingestion
+```
 
 ### 7. Verificar os serviços
 
@@ -228,11 +251,19 @@ Exited (0)
 
 Esse estado é normal: o serviço executa a inicialização e termina com sucesso.
 
+Também é possível acompanhar os logs de todos os serviços durante a inicialização:
+
+```bash
+docker compose logs -f
+```
+
+Para sair da visualização dos logs sem interromper os contêineres, pressione `Ctrl + C`.
+
 ## Primeira carga
 
 Na primeira execução, o banco climático estará vazio.
 
-O Airflow iniciará automaticamente a DAG:
+A DAG ficará ativa no Airflow:
 
 ```text
 climate_ingestion
@@ -240,7 +271,7 @@ climate_ingestion
 
 O pipeline identificará os períodos ausentes e coletará os dados até o último dia completo disponível.
 
-A primeira carga pode demorar alguns minutos, principalmente devido ao intervalo aplicado entre as requisições de qualidade do ar.
+A primeira carga pode levar vários minutos, dependendo da conexão, do desempenho do computador e do volume histórico a ser coletado.
 
 Acompanhe a execução com:
 
@@ -301,7 +332,9 @@ O dashboard permite:
 - consultar os dados diários;
 - exportar os dados selecionados em CSV.
 
-Caso a primeira carga ainda não tenha terminado, o dashboard exibirá uma mensagem solicitando que o usuário aguarde.
+O dashboard pode ficar disponível antes da conclusão da primeira carga. Nesse período, ele exibirá uma mensagem informando que os dados analíticos ainda estão sendo preparados.
+
+Após o término da DAG, atualize a página.
 
 ## Comandos úteis
 
@@ -374,7 +407,7 @@ Na próxima inicialização, o projeto será executado como uma instalação nov
 ## Estrutura principal
 
 ```text
-climate-project/
+brazilian-climate-data-pipeline/
 ├── api_client.py
 ├── pipeline.py
 ├── utils.py
